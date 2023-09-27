@@ -25,5 +25,5 @@ export const validateSchema = Joi.object({
         item_quantity: Joi.number().greater(0).required(),
         item_unit_price: Joi.number().greater(0).required(),
       })
-    ),
-});
+    ).min(1).required(),
+}).options({ abortEarly: false });
