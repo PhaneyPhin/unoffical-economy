@@ -1,0 +1,13 @@
+import { ValidationError } from "joi";
+
+export const simplifyErrors = (originalData: any): ValidationError[] => {
+    if (!originalData || !originalData.details || !Array.isArray(originalData.details)) {
+      return [];
+    }
+  
+    return originalData.details.map((detail: any) => ({
+      message: detail.message,
+      path: detail.path.join('.'),
+      type: detail.type,
+    }));
+}
