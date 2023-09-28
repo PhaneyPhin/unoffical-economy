@@ -1,6 +1,6 @@
-import { ValidationError } from "joi";
+import { ValidationError } from "../interface/Error";
 
-export const simplifyErrors = (originalData: any): ValidationError[] => {
+export const simplifyErrors = (originalData: any) => {
     if (!originalData || !originalData.details || !Array.isArray(originalData.details)) {
       return [];
     }

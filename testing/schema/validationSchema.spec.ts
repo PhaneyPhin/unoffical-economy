@@ -1,7 +1,7 @@
-import { validateSchema } from '../src/JoiSchema/validateInvoice'; // Replace with the actual path
+import { validateSchema } from '../../src/JoiSchema/validateInvoice'; // Replace with the actual path
 import { describe, test, expect } from '@jest/globals';
 import { faker } from '@faker-js/faker';
-
+import { AVAILABLE_CURRENCY } from '../../src/config';
 
 describe('Validation Schema', () => {
   test('Valid Data', () => {
@@ -10,7 +10,7 @@ describe('Validation Schema', () => {
         buyer_vat_tin: faker.number.int({ min: 1000, max: 9999 }) + '-' + faker.number.int({ min: 100000000, max: 999999999 }),
         buyer_address: faker.location.streetAddress(),
         buyer_phone: faker.phone.number(),
-        invoice_currency: faker.finance.currencyCode(),
+        invoice_currency: AVAILABLE_CURRENCY[1],
         seller_name: faker.company.name(),
         seller_address: faker.location.streetAddress(),
         invoice_items: [
@@ -24,7 +24,7 @@ describe('Validation Schema', () => {
       };
 
     const result = validateSchema.validate(data);
-    
+
     expect(result.error).toBeUndefined();
   });
 
@@ -41,13 +41,23 @@ describe('Validation Schema', () => {
     );
   });
 
+  test('Invalid Currency', () => {
+    const data = {
+      invoice_currency: 'AUD'
+    };
+
+    const result = validateSchema.validate(data);
+    expect(result.error).toBeDefined();
+    expect(result.error?.message).toContain(
+      '"invoice_currency" must be one of [' + AVAILABLE_CURRENCY.join(', ')+ '].'
+    );
+  });
+
   test('Missing All Required Fields', () => {
     const data = {}; // No fields provided
 
     const result = validateSchema.validate(data);
     expect(result.error).toBeDefined();
-    console.log(result.error?.details)
-
     expect(result.error?.details).toHaveLength(8); // Assuming there are 8 required fields
     expect(result.error?.details).toEqual(
       expect.arrayContaining([

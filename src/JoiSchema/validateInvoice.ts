@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { AVAILABLE_CURRENCY } from "../config";
 
 export const validateSchema = Joi.object({
     buyer_name: Joi.string().required(),
@@ -15,7 +16,7 @@ export const validateSchema = Joi.object({
       .required(),
     buyer_address: Joi.string().required(),
     buyer_phone: Joi.string().required(),
-    invoice_currency: Joi.string().required(),
+    invoice_currency: Joi.string().valid(...AVAILABLE_CURRENCY).required(),
     seller_name: Joi.string().required(),
     seller_address: Joi.string().required(),
     invoice_items: Joi.array().items(
