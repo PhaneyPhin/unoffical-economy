@@ -21,11 +21,37 @@ const validInvoice: Invoice = {
       item_unit_price: faker.number.int({ min: 1, max: 100 }),
     },
   ],
+  sub_total_amount: 100
 }
 
 describe('Validation Invoice', () => {
   beforeEach(() => {
     cache.flushAll()
+  })
+
+  test('Valid static data', () => {
+    const invoice = {
+      "buyer_name": "Phaney Phin",
+      "buyer_vat_tin": "1234-058991820",
+      "buyer_address": "Phnom Penh",
+      "buyer_phone": "0889549645",
+      "invoice_currency": "KHR",
+      "seller_name": "Phaney",
+      "seller_address": "Phnom Penh",
+      "invoice_items": [
+        {
+          "item_name": "string",
+          "item_description": "aa",
+          "item_quantity": 10,
+          "item_unit_price": 10
+        }
+      ],
+      "sub_total_amount": 100
+    }
+
+    const result = validateInvoice(invoice);
+    
+    expect(result).toBeNull();
   })
   test('Valid Data', () => {
     const result = validateInvoice(validInvoice);
@@ -69,7 +95,7 @@ describe('Validation Invoice', () => {
 
     const result = validateInvoice(data);
     expect(result).toBeDefined();
-    expect(result).toHaveLength(8); // Assuming there are 8 required fields
+    expect(result).toHaveLength(9); // Assuming there are 8 required fields
     const expectedErrors = [
       { message: '"buyer_name" is required', path: 'buyer_name', type: 'any.required' },
       { message: 'Buyer VAT TIN is required.', path: 'buyer_vat_tin', type: 'any.required' },
@@ -79,6 +105,7 @@ describe('Validation Invoice', () => {
       { message: '"seller_name" is required', path: 'seller_name', type: 'any.required' },
       { message: '"seller_address" is required', path: 'seller_address', type: 'any.required' },
       { message: '"invoice_items" is required', path: 'invoice_items', type: 'any.required' },
+      { message: '"sub_total_amount" is required', path: 'sub_total_amount', type: 'any.required' },
     ];
 
     expect(result).toEqual(expectedErrors);

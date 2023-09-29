@@ -6,6 +6,7 @@ export interface Invoice {
     invoice_currency: string;
     seller_name: string;
     seller_address: string;
+    sub_total_amount: number;
     invoice_items: InvoiceItem[];
   }
   

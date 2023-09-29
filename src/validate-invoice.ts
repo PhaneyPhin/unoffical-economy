@@ -22,9 +22,7 @@ export const validateInvoice: ValidationFunction = (invoice: Invoice) => {
 
   }
 
-  const validated = validateSchema.validate(invoice, {
-    abortEarly: false,
-  })
+  const validated = validateSchema.validate(invoice)
   
   if (validated.error) {
     return simplifyErrors(validated?.error);
