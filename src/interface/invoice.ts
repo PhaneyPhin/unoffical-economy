@@ -1,4 +1,5 @@
 export interface Invoice {
+    invoice_id: string,
     buyer_name: string;
     buyer_vat_tin: string;
     buyer_address: string;

@@ -13,15 +13,17 @@ export class InvoiceController {
             return ''
         }
 
-        const invoice: Invoice = InvoiceSchemaType.fromBuffer(message.value);
-        const validate = validateInvoice(invoice)
+        const payload: any = InvoiceSchemaType.fromBuffer(message.value);
+        const validate = validateInvoice(payload.data)
    
+        console.log(validate)
         if (validate) {
           producer.send({
            topic: PROCESS_INVOICE_REPLY_TOPIC,
            messages: [
              {
                value: ResponseSchema.toBuffer({
+                 process_id: payload.process_id,
                  isError: true,
                  data: validate
               })

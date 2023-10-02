@@ -16,7 +16,6 @@ describe("Validation Schema", () => {
       seller_address: "Phnom Penh",
       invoice_items: [
         {
-          item_id: "15",
           item_name: "string",
           item_description: "aa",
           item_quantity: 10,
@@ -31,7 +30,42 @@ describe("Validation Schema", () => {
     expect(result?.error).toBeUndefined();
   });
 
+  test("Wrong total validate", () => {
+    const invoice = {
+      invoice_id: 'INV-0012344',
+      buyer_name: "Phaney Phin",
+      buyer_vat_tin: "1234-058991820",
+      buyer_address: "Phnom Penh",
+      buyer_phone: "0889549645",
+      invoice_currency: "KHR",
+      seller_name: "Phaney",
+      seller_address: "Phnom Penh",
+      invoice_items: [
+        {
+          item_name: "string",
+          item_description: "aa",
+          item_quantity: 10,
+          item_unit_price: 10,
+        },
+      ],
+      sub_total_amount: 101,
+    };
+
+    const result = validateSchema.validate(invoice);
+    expect(result?.error).toBeDefined();
+    expect(result.error?.message).toContain("The sub total and the prices line items doesn\'t match.");
+  })
+
   test("Valid Data", () => {
+    const invoice_items = [
+      {
+        item_name: faker.commerce.productName(),
+        item_description: faker.lorem.sentence(),
+        item_quantity: faker.number.int({ min: 1, max: 10 }),
+        item_unit_price: faker.number.int({ min: 1, max: 100 }),
+      },
+    ]
+
     const data = {
       invoice_id: 'INV-'+ faker.number,
       buyer_name: faker.person.fullName(),
@@ -44,16 +78,8 @@ describe("Validation Schema", () => {
       invoice_currency: AVAILABLE_CURRENCY[1],
       seller_name: faker.company.name(),
       seller_address: faker.location.streetAddress(),
-      invoice_items: [
-        {
-          item_id: "122",
-          item_name: faker.commerce.productName(),
-          item_description: faker.lorem.sentence(),
-          item_quantity: faker.number.int({ min: 1, max: 10 }),
-          item_unit_price: faker.number.int({ min: 1, max: 100 }),
-        },
-      ],
-      sub_total_amount: 100,
+      invoice_items,
+      sub_total_amount: invoice_items.reduce((total, invoiceItem) => total + invoiceItem.item_quantity * invoiceItem.item_unit_price, 0),
     };
 
     const result = validateSchema.validate(data);

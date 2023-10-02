@@ -1,5 +1,6 @@
-import Joi from "joi";
+import Joi, { CustomHelpers } from "joi";
 import { AVAILABLE_CURRENCY } from "../config";
+import { validateTotal } from "../utils/validator";
 
 export const validateSchema = {
   validate: (object: any) => {
@@ -29,7 +30,6 @@ export const validateSchema = {
       invoice_items: Joi.array()
         .items(
           Joi.object({
-            item_id: Joi.string().required(),
             item_name: Joi.string().required(),
             item_description: Joi.string().optional(),
             item_quantity: Joi.number().greater(0).required(),
@@ -49,7 +49,13 @@ export const validateSchema = {
       sub_total_amount: Joi.number()
         .greater(0)
         .required()
-        .custom((value, helper) => {}),
+        .custom((value: number, helper: CustomHelpers) => {
+          if (! validateTotal(value, object?.invoice_items)) {  
+            return helper.error('The sub total and the prices line items doesn\'t match.')
+          }
+
+          return true
+        }),
     }).options({ abortEarly: false });
 
     return schema.validate(object);

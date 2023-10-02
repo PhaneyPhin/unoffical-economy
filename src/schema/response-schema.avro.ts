@@ -5,6 +5,10 @@ export const ResponseSchema = avro.Type.forSchema({
     "name": "ValidationErrorWithFlag",
     "fields": [
       {
+        "name": "process_id",
+        "type": "long"
+      },
+      {
         "name": "isError",
         "type": "boolean"
       },
