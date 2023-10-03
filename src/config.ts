@@ -1,9 +1,12 @@
 export const PROCESS_INVOICE_TOPIC = 'process-invoice'
 export const PROCESS_INVOICE_REPLY_TOPIC ='process-invoice.reply'
-export const KAFKA_BROKER = 'kafka:9092'
+export const KAFKA_BROKER = 'cam-invoice-kafka:29092'
 export const CLIENT_ID = 'invoice-validator'
 export const CACHE_TTL = 3600
 export const LISTEN_TOPIC = [PROCESS_INVOICE_TOPIC]
 export const GROUP_ID =  "invoice-validator";
 export const VALIDATION_DONE_TOPIC = 'validation-done'
 export const AVAILABLE_CURRENCY = ['KHR', 'USD']
+export const SCHEMA_REGISTRY_URL = 'http://cam-invoice-schema-registry:8081'
+export const INVOICE_PROCESS_SCHEMA_ID = 1
+export const VALIDATION_RESPONSE_SCHEMA_ID = 3

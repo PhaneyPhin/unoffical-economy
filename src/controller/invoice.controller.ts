@@ -1,10 +1,8 @@
 import { KafkaMessage } from "kafkajs";
-import { InvoiceSchemaType } from "../schema/invoice-schema.avro";
-import { Invoice } from "../interface/invoice";
 import { validateInvoice } from "../validate-invoice";
 import { producer } from "../producer";
-import { PROCESS_INVOICE_REPLY_TOPIC, VALIDATION_DONE_TOPIC } from "../config";
-import { ResponseSchema } from "../schema/response-schema.avro";
+import { PROCESS_INVOICE_REPLY_TOPIC, VALIDATION_DONE_TOPIC, VALIDATION_RESPONSE_SCHEMA_ID } from "../config";
+import registry from "../schemaRegistry";
 
 export class InvoiceController {
     async validateInvoice(message: KafkaMessage)
@@ -13,20 +11,20 @@ export class InvoiceController {
             return ''
         }
 
-        const payload: any = InvoiceSchemaType.fromBuffer(message.value);
-        const validate = validateInvoice(payload.data)
+        const decodedPayload = await registry.decode(message.value)
+        const validate = validateInvoice(decodedPayload.data)
    
-        console.log(validate)
         if (validate) {
+          const encodedPayload = await registry.encode(VALIDATION_RESPONSE_SCHEMA_ID, {
+            process_id: decodedPayload.process_id,
+            isError: true,
+            data: validate
+         })
           producer.send({
            topic: PROCESS_INVOICE_REPLY_TOPIC,
            messages: [
              {
-               value: ResponseSchema.toBuffer({
-                 process_id: payload.process_id,
-                 isError: true,
-                 data: validate
-              })
+               value: encodedPayload
              }
            ]
           })
