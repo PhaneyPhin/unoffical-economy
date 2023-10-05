@@ -6,27 +6,25 @@ export const validateSchema = {
   validate: (object: any) => {
     const schema = Joi.object({
       invoice_id: Joi.string().required(),
-      buyer_name: Joi.string().required(),
       issued_date: Joi.string().optional(),
       note: Joi.string().optional(),
-      buyer_vat_tin: Joi.string()
-        .pattern(/^\d{4}-\d{9}$/)
-        .messages({
-          "string.pattern.base":
-            'Buyer VAT TIN must be in the format "1234-058991820".',
-          "any.required": "Buyer VAT TIN is required.",
-        })
+      buyer_vat_tin: 
+        Joi.string()
+        .required()
         .custom(function (value, helper) {
-          return true;
+            if (! object.buyer) {
+               return helper.error('does_not_exist')
+            }
+
+            return true
         })
-        .required(),
-      buyer_address: Joi.string().required(),
-      buyer_phone: Joi.string().required(),
+        .required()
+        .messages({
+          'does_not_exist': 'Buyer vat tin doesn\'t exist in E-invoicing system.'
+        }),
       invoice_currency: Joi.string()
         .valid(...AVAILABLE_CURRENCY)
         .required(),
-      seller_name: Joi.string().required(),
-      seller_address: Joi.string().required(),
       invoice_items: Joi.array()
         .items(
           Joi.object({
@@ -51,12 +49,14 @@ export const validateSchema = {
         .required()
         .custom((value: number, helper: CustomHelpers) => {
           if (! validateTotal(value, object?.invoice_items)) {  
-            return helper.error('The sub total and the prices line items doesn\'t match.')
+            return helper.error('sub_total')
           }
 
           return true
+        }).messages({
+          'sub_total': 'The sub total and the prices line items doesn\'t match.'
         }),
-    }).options({ abortEarly: false });
+    }).options({ abortEarly: false }).unknown(true);
 
     return schema.validate(object);
   },

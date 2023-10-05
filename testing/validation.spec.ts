@@ -1,9 +1,11 @@
 import { describe, test, expect } from '@jest/globals';
 import { faker } from '@faker-js/faker';
-import { validateInvoice } from '../src/validate-invoice';
 import { Invoice, InvoiceItem } from '../src/interface/invoice';
 import { AVAILABLE_CURRENCY } from '../src/config';
 import cache from '../src/utils/cache';
+import { InvoiceController } from '../src/controller/invoice.controller';
+
+const invoiceController = new InvoiceController()
 
 const invoiceItems: InvoiceItem[] = [
   {
@@ -53,28 +55,28 @@ describe('Validation Invoice', () => {
       "sub_total_amount": 100
     }
 
-    const result = validateInvoice(invoice);
+    const result = invoiceController.doValidateInvoice(invoice);
     
     expect(result).toBeNull();
   })
   test('Valid Data', () => {
-    const result = validateInvoice(validInvoice);
+    const result = invoiceController.doValidateInvoice(validInvoice);
     
     expect(result).toBeNull();
   });
 
   test('Duplicate invoice Data', () => {
-    let result = validateInvoice(validInvoice);
+    let result = invoiceController.doValidateInvoice(validInvoice);
     
     expect(result).toBeNull();
-    result = validateInvoice(validInvoice)
+    result = invoiceController.doValidateInvoice(validInvoice)
     expect(result).not.toBeNull()
     expect(result).toEqual([
       { message: "Invoice was duplicated", path: "", type: "duplicated" },
     ]);
 
     const data: any = {}
-    result = validateInvoice(data)
+    result = invoiceController.doValidateInvoice(data)
     expect(result).not.toBeNull()
     expect(cache.get(JSON.stringify(data))).toBeUndefined()
   });
@@ -86,7 +88,7 @@ describe('Validation Invoice', () => {
       buyer_vat_tin: '12345', // Invalid VAT TIN format
     };
 
-    const result = validateInvoice(data);
+    const result = invoiceController.doValidateInvoice(data);
     expect(result).not.toBeNull();
     if (result) {
       expect(result[0].message).toEqual(
@@ -98,7 +100,7 @@ describe('Validation Invoice', () => {
   test('Missing All Required Fields', () => {
     const data: any = {}; // No fields provided
 
-    const result = validateInvoice(data);
+    const result = invoiceController.doValidateInvoice(data);
     expect(result).toBeDefined();
     // expect(result).toHaveLength(10); // Assuming there are 8 required fields
 

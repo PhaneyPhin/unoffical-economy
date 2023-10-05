@@ -16,8 +16,6 @@ export const consumeMessage = async () => {
             break
        }
       }
-      
     },
   });
-  console.log('Already consumed')
 };
