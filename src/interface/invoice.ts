@@ -1,12 +1,7 @@
 export interface Invoice {
     invoice_id: string,
-    buyer_name: string;
     buyer_vat_tin: string;
-    buyer_address: string;
-    buyer_phone: string;
     invoice_currency: string;
-    seller_name: string;
-    seller_address: string;
     sub_total_amount: number;
     invoice_items: InvoiceItem[];
   }

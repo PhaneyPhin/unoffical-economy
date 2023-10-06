@@ -9,4 +9,4 @@ export const VALIDATION_DONE_TOPIC = 'validation-done'
 export const AVAILABLE_CURRENCY = ['KHR', 'USD']
 export const SCHEMA_REGISTRY_URL = 'http://cam-invoice-schema-registry:8081'
 export const INVOICE_PROCESS_SCHEMA_ID = 1
-export const VALIDATION_RESPONSE_SCHEMA_ID = 3
+export const VALIDATION_RESPONSE_SCHEMA_ID = 2

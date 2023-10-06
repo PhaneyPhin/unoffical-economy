@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, test, expect } from '@jest';
 import { faker } from '@faker-js/faker';
 import { Invoice, InvoiceItem } from '../src/interface/invoice';
 import { AVAILABLE_CURRENCY } from '../src/config';
@@ -18,13 +18,8 @@ const invoiceItems: InvoiceItem[] = [
 
 const validInvoice: Invoice = {
   invoice_id: 'INV-' + faker.number,
-  buyer_name: faker.person.fullName(),
   buyer_vat_tin: faker.number.int({ min: 1000, max: 9999 }) + '-' + faker.number.int({ min: 100000000, max: 999999999 }),
-  buyer_address: faker.location.streetAddress(),
-  buyer_phone: faker.phone.number(),
   invoice_currency: AVAILABLE_CURRENCY[0],
-  seller_name: faker.company.name(),
-  seller_address: faker.location.streetAddress(),
   invoice_items: invoiceItems,
   sub_total_amount: invoiceItems.reduce((total, invoiceItem) => total + invoiceItem.item_quantity * invoiceItem.item_unit_price, 0),
 }
@@ -37,13 +32,8 @@ describe('Validation Invoice', () => {
   test('Valid static data', () => {
     const invoice: Invoice = {
       "invoice_id": 'INV-000001',
-      "buyer_name": "Phaney Phin",
       "buyer_vat_tin": "1234-058991820",
-      "buyer_address": "Phnom Penh",
-      "buyer_phone": "0889549645",
       "invoice_currency": "KHR",
-      "seller_name": "Phaney",
-      "seller_address": "Phnom Penh",
       "invoice_items": [
         {
           "item_name": "string",
