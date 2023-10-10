@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest';
+import { describe, test, expect } from '@jest/globals';
 import { faker } from '@faker-js/faker';
 import { Invoice, InvoiceItem } from '../src/interface/invoice';
 import { AVAILABLE_CURRENCY } from '../src/config';

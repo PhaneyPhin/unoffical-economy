@@ -33,3 +33,13 @@ export interface ProcessInvoiceData {
   process_id: number,
   data: Invoice
 }
+
+export interface BatchInvoiceData {
+  buyer: Merchant,
+  seller: Merchant,
+  invoices: Invoice[]
+}
+export interface ProcessBatchInvoiceData {
+  process_id: number,
+  data: BatchInvoiceData,
+}

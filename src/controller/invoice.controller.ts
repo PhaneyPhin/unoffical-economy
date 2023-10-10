@@ -1,15 +1,80 @@
 import { KafkaMessage } from "kafkajs";
 import { producer } from "../producer";
-import { VALIDATION_DONE_TOPIC, VALIDATION_RESPONSE_SCHEMA_ID } from "../config";
+import { INVOICE_PROCESS_SCHEMA_ID, VALIDATION_DONE_TOPIC, VALIDATION_RESPONSE_SCHEMA_ID } from "../config";
 import registry from "../schemaRegistry";
-import { Invoice, ProcessInvoiceData } from "../interface/invoice";
+import { BatchInvoiceData, Invoice, Merchant, ProcessBatchInvoiceData, ProcessInvoiceData } from "../interface/invoice";
 import cache from "../utils/cache";
 import { ValidationError } from "../interface/Error";
 import { validateSchema } from "../JoiSchema/validateInvoice";
 import { simplifyErrors } from "../utils/simplifyError";
-import Topic from "../enums/TOPIC";
+import Topic from "../enums/topic";
+import { error } from "console";
 
 export class InvoiceController {
+  async validateInvoice(processInvoiceData: ProcessInvoiceData, message: KafkaMessage) {
+    let validated = this.doValidateInvoice(processInvoiceData.data)
+
+    if (validated) {
+      const encodedPayload = await registry.encode(VALIDATION_RESPONSE_SCHEMA_ID, {
+        process_id: processInvoiceData.process_id,
+        isError: true,
+        data: validated
+      })
+
+      producer.send({
+        topic: Topic.PROCESS_INVOICE_REPLY,
+        messages: [
+          {
+            value: encodedPayload
+          }
+        ]
+      })
+    } else {
+      producer.send({
+        topic: VALIDATION_DONE_TOPIC,
+        messages: [message]
+      })
+    }
+  }
+
+  async validateBatchInvoice(processInvoiceData: ProcessBatchInvoiceData, message: KafkaMessage) {
+    let validated = this.doValidateBatchInvoices(processInvoiceData.data)
+    console.log(validated)
+    if (validated) {
+      const encodedPayload = await registry.encode(VALIDATION_RESPONSE_SCHEMA_ID, {
+        process_id: processInvoiceData.process_id,
+        isError: true,
+        data: validated
+      })
+
+      await producer.send({
+        topic: Topic.PROCESS_BATCH_INVOICE_REPLY,
+        messages: [
+          {
+            value: encodedPayload
+          }
+        ]
+      })
+    } else {
+      processInvoiceData.data.invoices.forEach(async (invoice) => {
+        const encodedPayload = await registry.encode(INVOICE_PROCESS_SCHEMA_ID, {
+          process_id: processInvoiceData.process_id,
+          data: {
+            ...invoice,
+            buyer: processInvoiceData.data.buyer,
+            seller: processInvoiceData.data.seller
+          }
+        })
+        await producer.send({
+          topic: VALIDATION_DONE_TOPIC,
+          messages: [{
+            value: encodedPayload
+          }]
+        })
+      })
+    }
+  }
+
   public doValidateInvoice = (invoice: Invoice) : ValidationError[] | null => {
     const invoiceString = JSON.stringify(invoice)
   
@@ -36,29 +101,54 @@ export class InvoiceController {
     return null
   };
 
-  async validateInvoice(processInvoiceData: ProcessInvoiceData, message: KafkaMessage) {
-    let validate = this.doValidateInvoice(processInvoiceData.data)
+  public doValidateBatchInvoices = (data: BatchInvoiceData) => {
+    const invoiceString = JSON.stringify(data)
+  
+    if (! data.buyer) {
+      return [
+        {
+          message: 'Buyer vat tin doesn\'t exist in E-invoicing system.',
+          path: '',
+          type: 'duplicated',
+        }
+      ]
+    }
 
-    if (validate) {
-      const encodedPayload = await registry.encode(VALIDATION_RESPONSE_SCHEMA_ID, {
-        process_id: processInvoiceData.process_id,
-        isError: true,
-        data: validate
-      })
-
-      producer.send({
-        topic: Topic.PROCESS_INVOICE_REPLY,
-        messages: [
+    if (cache.get(invoiceString)) {
+        const duplicatedError: ValidationError[] = [
           {
-            value: encodedPayload
+            message: 'Batches Invoice was duplicated',
+            path: 'buyer_vat_tin',
+            type: 'doesnt_exist',
           }
         ]
-      })
-    } else {
-      producer.send({
-        topic: VALIDATION_DONE_TOPIC,
-        messages: [message]
-      })
+  
+        return duplicatedError
     }
-  }
+
+    let validated: any = []
+    data.invoices.forEach((invoice, index) => {
+      const validatedItem = validateSchema.validate(invoice)
+      if (validatedItem.error) {
+        const errors = simplifyErrors(validatedItem?.error)?.map((error) => ({
+          message: error.message,
+          path: `invoices.${index}.${error.path}`,
+          type: error.type
+        }));
+
+        validated = [...validated, ...errors]
+      } else {  
+        return null
+      }
+    })
+
+    if (validated?.length) {
+      return validated
+    }
+  
+    cache.set(invoiceString, true)
+  
+    return null
+  };
+
 }
