@@ -1,7 +1,4 @@
-import { validateSchema } from "../../src/requests/validateInvoice"; // Replace with the actual path
 import { describe, test, expect } from "@jest/globals";
-import { faker } from "@faker-js/faker";
-import { AVAILABLE_CURRENCY } from "../../src/config";
 import { InvoiceDetails } from "../../src/requests/invoice.request";
 
 describe('InvoiceDetails Schema Validation', () => {

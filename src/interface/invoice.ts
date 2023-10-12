@@ -62,8 +62,8 @@ export interface ProcessInvoiceData {
 }
 
 export interface BatchInvoiceData {
-  buyer: Merchant,
-  seller: Merchant,
+  supplier: Merchant,
+  customer: Merchant,
   invoices: Invoice[]
 }
 export interface ProcessBatchInvoiceData {

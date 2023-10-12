@@ -5,24 +5,25 @@ import registry from "../schemaRegistry";
 import { BatchInvoiceData, Invoice, Merchant, ProcessBatchInvoiceData, ProcessInvoiceData } from "../interface/invoice";
 import cache from "../utils/cache";
 import { ValidationError } from "../interface/Error";
-import { validateSchema } from "../requests/validateInvoice";
 import { simplifyErrors } from "../utils/simplifyError";
 import Topic from "../enums/topic";
 import { InvoiceDetails } from "../requests/invoice.request";
 
 export class InvoiceController {
   async validateInvoice(processInvoiceData: ProcessInvoiceData, message: KafkaMessage) {
-    if (processInvoiceData.invoice.allowance_charges?.length) {
-      console.log(processInvoiceData.invoice.allowance_charges[0].tax_categories)
+    if (! processInvoiceData.invoice.customer) {
+      return [
+        {
+          message: 'Buyer vat tin doesn\'t exist in E-invoicing system.',
+          path: '',
+          type: 'duplicated',
+        }
+      ]
     }
+
     let validated = this.doValidateInvoice(processInvoiceData.invoice)
 
     if (validated) {
-      console.log(JSON.stringify({
-        process_id: processInvoiceData.process_id,
-        isError: true,
-        data: validated
-      }))
       const encodedPayload = await registry.encode(VALIDATION_RESPONSE_SCHEMA_ID, {
         process_id: processInvoiceData.process_id,
         isError: true,
@@ -47,7 +48,7 @@ export class InvoiceController {
 
   async validateBatchInvoice(processInvoiceData: ProcessBatchInvoiceData, message: KafkaMessage) {
     let validated = this.doValidateBatchInvoices(processInvoiceData.data)
-    console.log(validated)
+
     if (validated) {
       const encodedPayload = await registry.encode(VALIDATION_RESPONSE_SCHEMA_ID, {
         process_id: processInvoiceData.process_id,
@@ -69,8 +70,8 @@ export class InvoiceController {
           process_id: processInvoiceData.process_id,
           data: {
             ...invoice,
-            buyer: processInvoiceData.data.buyer,
-            seller: processInvoiceData.data.seller
+            customer: processInvoiceData.data.customer,
+            supplier: processInvoiceData.data.supplier
           }
         })
         await producer.send({
@@ -112,8 +113,8 @@ export class InvoiceController {
 
   public doValidateBatchInvoices = (data: BatchInvoiceData) => {
     const invoiceString = JSON.stringify(data)
-  
-    if (! data.buyer) {
+    console.log(data)
+    if (! data.customer) {
       return [
         {
           message: 'Buyer vat tin doesn\'t exist in E-invoicing system.',
@@ -137,7 +138,7 @@ export class InvoiceController {
 
     let validated: any = []
     data.invoices.forEach((invoice, index) => {
-      const validatedItem = validateSchema.validate(invoice)
+      const validatedItem = InvoiceDetails.validate(invoice)
       if (validatedItem.error) {
         const errors = simplifyErrors(validatedItem?.error)?.map((error) => ({
           message: error.message,

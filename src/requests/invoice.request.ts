@@ -51,24 +51,12 @@ const CustomerSupplier = Joi.object({
 export const InvoiceDetails = Joi.object({
   due_date: Joi.string().allow(null),
   buyer_reference: Joi.string().allow(null),
-  buyer_vat_tin: Joi.string().required().not(null)
-    .custom(function(value, helper) {
-      const invoice: Invoice = helper.state.ancestors[0]
-     
-      if (! invoice.customer) {
-        return helper.error('does_not_exist')
-      }
-
-      return value;
-    })
-  .messages({
-    'does_not_exist': 'Buyer vat tin doesn\'t exist in E-invoicing system.'
-  }),
+  buyer_vat_tin: Joi.string().optional().allow(null),
   allowance_charges: Joi.array().items(AllowanceCharge).allow(null),
   exchange_rate: Joi.number().allow(null),
   invoice_lines: Joi.array().items(InvoiceLine).length(1),
-  supplier: CustomerSupplier.allow(null),
-  customer: CustomerSupplier.allow(null),
+  supplier: CustomerSupplier.allow(null).optional(),
+  customer: CustomerSupplier.allow(null).optional(),
   sub_total: Joi.number().required().not(null).custom(function(value, helper) {
     const invoice: Invoice = helper.state.ancestors[0]
 
