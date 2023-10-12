@@ -55,8 +55,8 @@ export const InvoiceDetails = Joi.object({
   allowance_charges: Joi.array().items(AllowanceCharge).allow(null),
   exchange_rate: Joi.number().allow(null),
   invoice_lines: Joi.array().items(InvoiceLine).length(1),
-  supplier: CustomerSupplier.allow(null).optional(),
-  customer: CustomerSupplier.allow(null).optional(),
+  // supplier: CustomerSupplier.allow(null).optional(),
+  // customer: CustomerSupplier.allow(null).optional(),
   sub_total: Joi.number().required().not(null).custom(function(value, helper) {
     const invoice: Invoice = helper.state.ancestors[0]
 

@@ -35,14 +35,19 @@ export interface LegalMonetaryTotal {
 }
 
 export interface Merchant {
-  id: number;
   business_single_id: string;
   business_name_en: string;
   business_name_km: string;
   business_vat_tin: string;
   invoice_webhook: string;
+  city_name: string;
+  postal_zone: string;
+  country_code: string;
+  tax_scheme: string;
+  contact_name: string;
+  contact_phone: string;
+  contact_email: string;
 }
-
 
 export interface Invoice {
   due_date: string | null;
