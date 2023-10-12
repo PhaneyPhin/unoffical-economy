@@ -1,24 +1,38 @@
-export interface Invoice {
-  invoice_id: string;
-  buyer_name?: string;
-  buyer_vat_tin?: string;
-  buyer_address?: string;
-  buyer_phone?: string;
-  invoice_currency?: string;
-  invoice_items: InvoiceItem[];
-  sub_total_amount: number;
-  sender: Merchant;
-  buyer?: Merchant | null;
-  process_id: number;
+interface TaxCategory {
+  id: string | null;
+  percent: number;
+  tax_scheme: string | null;
 }
 
-export interface InvoiceItem {
-  item_name: string;
-  item_description?: string;
-  item_quantity: number;
-  item_unit_price: number;
+export interface Item {
+  description: string | null;
+  name: string | null;
+  tax_categories: TaxCategory[] | null;
 }
 
+export interface AllowanceCharge {
+  charge_indicator: boolean | null;
+  reason: string | null;
+  amount: number;
+  tax_categories: TaxCategory[] | null;
+}
+
+export interface InvoiceLine {
+  id: string | null;
+  quantity_unit_code: string | null;
+  quantity: number;
+  line_extension_amount: number;
+  price: number;
+  item: Item | null;
+}
+
+export interface LegalMonetaryTotal {
+  line_extension_amount: number;
+  tax_exclusive_amount: number;
+  tax_inclusive_amount: number;
+  charge_total_amount: number;
+  payable_amount: number;
+}
 
 export interface Merchant {
   id: number;
@@ -29,9 +43,22 @@ export interface Merchant {
   invoice_webhook: string;
 }
 
+
+export interface Invoice {
+  due_date: string | null;
+  buyer_reference: string | null;
+  buyer_vat_tin: string | null;
+  allowance_charges: AllowanceCharge[] | null;
+  exchange_rate: number;
+  invoice_lines: InvoiceLine[] | null;
+  supplier: Merchant | null;
+  customer: Merchant | null;
+  legal_monetary_total: LegalMonetaryTotal | null;
+}
+
 export interface ProcessInvoiceData {
   process_id: number,
-  data: Invoice
+  invoice: Invoice
 }
 
 export interface BatchInvoiceData {

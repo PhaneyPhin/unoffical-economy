@@ -5,5 +5,5 @@ export const GROUP_ID = "invoice-validator";
 export const VALIDATION_DONE_TOPIC = 'validation-done'
 export const AVAILABLE_CURRENCY = ['KHR', 'USD']
 export const SCHEMA_REGISTRY_URL = 'http://cam-invoice-schema-registry:8081'
-export const INVOICE_PROCESS_SCHEMA_ID = 4
-export const VALIDATION_RESPONSE_SCHEMA_ID = 2
+export const INVOICE_PROCESS_SCHEMA_ID = 7
+export const VALIDATION_RESPONSE_SCHEMA_ID = 4

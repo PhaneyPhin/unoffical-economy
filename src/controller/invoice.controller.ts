@@ -5,16 +5,24 @@ import registry from "../schemaRegistry";
 import { BatchInvoiceData, Invoice, Merchant, ProcessBatchInvoiceData, ProcessInvoiceData } from "../interface/invoice";
 import cache from "../utils/cache";
 import { ValidationError } from "../interface/Error";
-import { validateSchema } from "../JoiSchema/validateInvoice";
+import { validateSchema } from "../requests/validateInvoice";
 import { simplifyErrors } from "../utils/simplifyError";
 import Topic from "../enums/topic";
-import { error } from "console";
+import { InvoiceDetails } from "../requests/invoice.request";
 
 export class InvoiceController {
   async validateInvoice(processInvoiceData: ProcessInvoiceData, message: KafkaMessage) {
-    let validated = this.doValidateInvoice(processInvoiceData.data)
+    if (processInvoiceData.invoice.allowance_charges?.length) {
+      console.log(processInvoiceData.invoice.allowance_charges[0].tax_categories)
+    }
+    let validated = this.doValidateInvoice(processInvoiceData.invoice)
 
     if (validated) {
+      console.log(JSON.stringify({
+        process_id: processInvoiceData.process_id,
+        isError: true,
+        data: validated
+      }))
       const encodedPayload = await registry.encode(VALIDATION_RESPONSE_SCHEMA_ID, {
         process_id: processInvoiceData.process_id,
         isError: true,
@@ -90,8 +98,9 @@ export class InvoiceController {
         return duplicatedError
     }
   
-    const validated = validateSchema.validate(invoice)
+    const validated = InvoiceDetails.validate(invoice)
     
+    console.log(validated.error?.details)
     if (validated.error) {
       return simplifyErrors(validated?.error);
     }
