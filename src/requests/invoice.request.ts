@@ -51,7 +51,7 @@ const CustomerSupplier = Joi.object({
 export const InvoiceDetails = Joi.object({
   due_date: Joi.string().allow(null),
   buyer_reference: Joi.string().allow(null),
-  buyer_vat_tin: Joi.string().optional().allow(null),
+  buyer_vat_tin: Joi.string().not(null),
   allowance_charges: Joi.array().items(AllowanceCharge).allow(null),
   exchange_rate: Joi.number().allow(null),
   invoice_lines: Joi.array().items(InvoiceLine).length(1),

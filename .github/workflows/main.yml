@@ -1,18 +1,41 @@
-name: Node.js CI
+name: Continuous Integration
 
-on: [push]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'releases/*'
 
 jobs:
-  build:
-
+  test-typescript:
+    name: TypeScript Tests
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version: '20.8.0'
-      - run: npm install
-      - run: npm run build
-      - run: npm run test
+          node-version: 20.8.0
+          cache: npm
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      # - name: Check Format
+      #   id: npm-format-check
+      #   run: npm run format:check
+
+      # - name: Lint
+      #   id: npm-lint
+      #   run: npm run lint
+
+      - name: Test
+        id: npm-ci-test
+        run: npm run test
