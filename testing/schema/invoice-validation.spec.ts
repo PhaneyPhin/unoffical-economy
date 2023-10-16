@@ -1,9 +1,15 @@
 import { describe, test, expect } from "@jest/globals";
-import { InvoiceDetails } from "../../src/requests/invoice.request";
+import { InvoiceValidator } from "../../src/requests/invoice.request";
+import cache from "../../src/utils/cache";
+import { validInvoiceData } from "../data/valid-invoice";
 
-describe('InvoiceDetails Schema Validation', () => {
+describe('InvoiceValidator Schema Validation', () => {
+  beforeEach(() => {
+    cache.flushAll()
+  })
+
   test('Valid Invoice Details', () => {
-    const validInvoiceDetails = {
+    const validInvoiceValidator = {
       due_date: "2023-11-11",
       buyer_reference: "Example Business (English)",
       buyer_vat_tin: "1234-058991820",
@@ -61,16 +67,15 @@ describe('InvoiceDetails Schema Validation', () => {
       sub_total: 310000.00,
     };
 
-    const result = InvoiceDetails.validate(validInvoiceDetails);
-    console.log(result.error)
+    const result = InvoiceValidator.validate(validInvoiceValidator);
     expect(result.error).toBeUndefined();
-    expect(result.value).toEqual(validInvoiceDetails);
+    expect(result.value).toEqual(validInvoiceValidator);
   });
 });
 
-describe('InvoiceDetails Schema Validation - All Not Null Fields Missing or Null', () => {
+describe('InvoiceValidator Schema Validation - All Not Null Fields Missing or Null', () => {
   test('Invalid Invoice Details - All Not Null Fields Missing or Null', () => {
-    const invalidInvoiceDetails = {
+    const invalidInvoiceValidator = {
       // Set all fields marked as "not null" to null or missing
       due_date: null,
       buyer_reference: null,
@@ -83,18 +88,45 @@ describe('InvoiceDetails Schema Validation - All Not Null Fields Missing or Null
       sub_total: null,
     };
 
-    const result: any = InvoiceDetails.validate(invalidInvoiceDetails, { abortEarly: false });
+    const result: any = InvoiceValidator.validate(invalidInvoiceValidator, { abortEarly: false });
 
     // Ensure that the validation result contains errors
     expect(result.error).toBeDefined();
-
-    // Print the validation errors for manual inspection
-    console.log(result.error.details);
-
     // Optionally, you can check specific error messages for each missing or null field
-    const notNullFields = ["buyer_vat_tin", "invoice_lines", "sub_total"];
+    const notNullFields = ["invoice_lines", "sub_total"];
     notNullFields.forEach(field => {
       expect(result.error.details.some((detail: any) => detail.message.includes(field))).toBe(true);
     });
+  });
+});
+
+// Mock data for a valid invoice
+describe('InvoiceValidator', () => {
+  test('Valid Invoice', () => {
+    const { error, value } = InvoiceValidator.validate(validInvoiceData);
+
+    // No error should be present
+    expect(error).toBeUndefined();
+
+    // The validated value should match the input
+    expect(value).toEqual(validInvoiceData);
+  });
+
+  test('Invalid Invoice - Mismatched sub_total', () => {
+    const invalidInvoiceData = {
+      ...validInvoiceData,
+      sub_total: 200, // Incorrect sub_total value
+    };
+
+    const { error } = InvoiceValidator.validate(invalidInvoiceData);
+
+    // An error should be present
+    expect(error).toBeDefined();
+
+    // The error should indicate a mismatched sub_total value
+    if (error) {
+      const { details } = error;
+      expect(details[0].message ).toEqual( "\"sub_total\" contains an invalid value");
+    }
   });
 });

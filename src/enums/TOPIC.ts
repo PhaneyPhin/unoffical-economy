@@ -1,4 +1,4 @@
-enum Topic {
+export enum Topic {
     PROCESS_INVOICE = 'process-invoice',
     PROCESS_INVOICE_REPLY = 'process-invoice.reply',
     PROCESS_BATCH_INVOICE = 'process-batch-invoice',

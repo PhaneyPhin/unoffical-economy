@@ -2,12 +2,12 @@ import { KafkaMessage } from "kafkajs";
 import { producer } from "../producer";
 import { INVOICE_PROCESS_SCHEMA_ID, VALIDATION_DONE_TOPIC, VALIDATION_RESPONSE_SCHEMA_ID } from "../config";
 import registry from "../schemaRegistry";
-import { BatchInvoiceData, Invoice, Merchant, ProcessBatchInvoiceData, ProcessInvoiceData } from "../interface/invoice";
+import { BatchInvoiceData, Invoice, ProcessBatchInvoiceData, ProcessInvoiceData } from "../interface/invoice";
 import cache from "../utils/cache";
 import { ValidationError } from "../interface/Error";
 import { simplifyErrors } from "../utils/simplifyError";
-import Topic from "../enums/topic";
-import { InvoiceDetails } from "../requests/invoice.request";
+import { Topic } from "../enums/topic";
+import { InvoiceValidator } from "../requests/invoice.request";
 
 export class InvoiceController {
   async validateInvoice(processInvoiceData: ProcessInvoiceData, message: KafkaMessage) {
@@ -84,9 +84,8 @@ export class InvoiceController {
     }
   }
 
-  public doValidateInvoice = (invoice: Invoice) : ValidationError[] | null => {
+  public doValidateInvoice = (invoice: Partial<Invoice>) : ValidationError[] | null => {
     const invoiceString = JSON.stringify(invoice)
-  
     if (cache.get(invoiceString)) {
         const duplicatedError: ValidationError[] = [
           {
@@ -99,9 +98,8 @@ export class InvoiceController {
         return duplicatedError
     }
   
-    const validated = InvoiceDetails.validate(invoice)
+    const validated = InvoiceValidator.validate(invoice)
     
-    console.log(validated.error?.details)
     if (validated.error) {
       return simplifyErrors(validated?.error);
     }
@@ -113,7 +111,7 @@ export class InvoiceController {
 
   public doValidateBatchInvoices = (data: BatchInvoiceData) => {
     const invoiceString = JSON.stringify(data)
-    console.log(data)
+
     if (! data.customer) {
       return [
         {
@@ -138,7 +136,7 @@ export class InvoiceController {
 
     let validated: any = []
     data.invoices.forEach((invoice, index) => {
-      const validatedItem = InvoiceDetails.validate(invoice)
+      const validatedItem = InvoiceValidator.validate(invoice)
       if (validatedItem.error) {
         const errors = simplifyErrors(validatedItem?.error)?.map((error) => ({
           message: error.message,
