@@ -80,4 +80,4 @@ export const InvoiceDetails = Joi.object({
 
     return value;
   }),
-}).options({ presence: 'required', abortEarly: false });
+}).unknown(true).options({ presence: 'required', abortEarly: false });
