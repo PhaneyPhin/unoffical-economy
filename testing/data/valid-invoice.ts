@@ -1,7 +1,11 @@
+import { AVAILABLE_CURRENCY } from "../../src/config";
+
 export const validInvoiceData = {
     due_date: '2023-12-31',
     buyer_reference: 'BR123',
     buyer_vat_tin: '123456789',
+    invoice_id: 'INV-234533222',
+    currency: AVAILABLE_CURRENCY[0],
     allowance_charges: [
       {
         charge_indicator: true,

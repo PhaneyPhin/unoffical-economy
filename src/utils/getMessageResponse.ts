@@ -1,4 +1,4 @@
-import { eventEmitter } from "../EventEmitter"
+import { eventEmitter } from "../services/EventEmitter"
 
 export const getMessageResponse = (topic: string) => {
     return new Promise((resolve, reject) => {

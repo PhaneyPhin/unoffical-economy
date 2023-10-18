@@ -1,5 +1,5 @@
 import { Kafka, KafkaConfig } from 'kafkajs';
-import { CLIENT_ID, KAFKA_BROKER } from './config';
+import { CLIENT_ID, KAFKA_BROKER } from '../config';
 
 const kafkaConfig: KafkaConfig = {
   clientId: CLIENT_ID,

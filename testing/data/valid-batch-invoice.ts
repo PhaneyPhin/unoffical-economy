@@ -1,3 +1,5 @@
+import { AVAILABLE_CURRENCY } from "../../src/config";
+
 export const validBatchInvoice: any = {
   buyer_vat_tin: '123456789',
   customer: {
@@ -33,6 +35,7 @@ export const validBatchInvoice: any = {
           ],
         },
       ],
+      currency: AVAILABLE_CURRENCY[0],
       exchange_rate: 1.2,
       invoice_lines: [
         {

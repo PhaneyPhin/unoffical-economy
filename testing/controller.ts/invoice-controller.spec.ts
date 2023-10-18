@@ -6,13 +6,13 @@ const mockSend = jest.fn();
 jest.mock('../../src/kafka', () => {
   return {
     kafka: {
-        producer: () =>({
-            connect: mockConnect,
-            disconnect: mockDisconnect,
-            send: mockSend,
-          }) 
-      }
+      producer: () => ({
+        connect: mockConnect,
+        disconnect: mockDisconnect,
+        send: mockSend,
+      })
     }
+  }
 });
 
 import { InvoiceController } from '../../src/controller/invoice.controller';
@@ -27,23 +27,23 @@ describe('InvoiceController', () => {
     invoiceController = new InvoiceController();
   });
 
-    test('Duplicated Invoice', () => {
-      let result = invoiceController.doValidateInvoice(validInvoiceData);
+  test('Duplicated Invoice', () => {
+    let result = invoiceController.doValidateInvoice(validInvoiceData);
 
-      result = invoiceController.doValidateInvoice(validInvoiceData);
-      if (result?.length) {
-        expect(result[0]).not.toBe(null)
-        expect(result[0].message).toBe('Invoice was duplicated');
-      }
-    });
+    result = invoiceController.doValidateInvoice(validInvoiceData);
+    if (result?.length) {
+      expect(result[0]).not.toBe(null)
+      expect(result[0].message).toBe('Invoice was duplicated');
+    }
+  });
 
-    test('Duplicated Batch Invoice', () => {
-        let result = invoiceController.doValidateBatchInvoices(validBatchInvoice);
-  
-        result = invoiceController.doValidateBatchInvoices(validBatchInvoice);
-        if (result?.length) {
-          expect(result[0]).not.toBe(null)
-          expect(result[0].message).toBe('Batches Invoice was duplicated');
-        }
-      });
+  test('Duplicated Batch Invoice', () => {
+    let result = invoiceController.doValidateBatchInvoices(validBatchInvoice);
+
+    result = invoiceController.doValidateBatchInvoices(validBatchInvoice);
+    if (result?.length) {
+      expect(result[0]).not.toBe(null)
+      expect(result[0].message).toBe('Batches Invoice was duplicated');
+    }
+  });
 });

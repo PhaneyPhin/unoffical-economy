@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { Invoice, InvoiceLine } from "../interface/invoice";
+import { AVAILABLE_CURRENCY } from "../config";
 
 const TaxCategoryValidator = Joi.object({
   id: Joi.string().required().not(null),
@@ -53,6 +54,7 @@ export const InvoiceValidator = Joi.object({
   buyer_vat_tin: Joi.string().optional().allow(null),
   allowance_charges: Joi.array().items(AllowanceChargeValidator).allow(null),
   exchange_rate: Joi.number().allow(null),
+  currency: Joi.required().valid(...AVAILABLE_CURRENCY),
   invoice_lines: Joi.array().items(InvoiceLineValidator).length(1),
   // supplier: CustomerSupplier.allow(null).optional(),
   // customer: CustomerSupplier.allow(null).optional(),

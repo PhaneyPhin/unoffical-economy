@@ -1,7 +1,7 @@
 import { KafkaMessage } from "kafkajs";
-import { producer } from "../producer";
+import { producer } from "../services/producer";
 import { INVOICE_PROCESS_SCHEMA_ID, VALIDATION_DONE_TOPIC, VALIDATION_RESPONSE_SCHEMA_ID } from "../config";
-import registry from "../schemaRegistry";
+import registry from "../services/schemaRegistry";
 import { BatchInvoiceData, Invoice, ProcessBatchInvoiceData, ProcessInvoiceData } from "../interface/invoice";
 import cache from "../utils/cache";
 import { ValidationError } from "../interface/Error";

@@ -1,7 +1,7 @@
-import { GROUP_ID } from "./config";
+import { GROUP_ID } from "../config";
 import { kafka } from "./kafka";
-import { InvoiceController } from "./controller/invoice.controller";
-import { Topic, LISTEN_TOPIC } from "./enums/topic";
+import { InvoiceController } from "../controller/invoice.controller";
+import { Topic, LISTEN_TOPIC } from "../enums/topic";
 import registry from "./schemaRegistry";
 const invoiceController = new InvoiceController()
 
