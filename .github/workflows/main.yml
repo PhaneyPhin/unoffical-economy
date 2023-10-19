@@ -32,6 +32,10 @@ jobs:
       - name: Install Dependencies
         id: npm-ci
         run: npm ci
+      
+      - name: Build project
+        id: build-project
+        run: npm run build    
         
       - name: Test
         id: npm-ci-test
