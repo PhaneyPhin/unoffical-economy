@@ -9,5 +9,3 @@ export const LISTEN_TOPIC = [
     Topic.PROCESS_INVOICE,
     Topic.PROCESS_BATCH_INVOICE
 ]
-
-export default Topic

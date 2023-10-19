@@ -25,6 +25,10 @@ jobs:
           node-version: 20.8.0
           cache: npm
 
+      - name: Copy Environment
+        id: CE
+        run: cp .env.example .env
+        
       - name: Install Dependencies
         id: npm-ci
         run: npm ci
