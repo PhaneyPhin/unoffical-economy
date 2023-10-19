@@ -3,7 +3,7 @@ const mockDisconnect = jest.fn();
 const mockSend = jest.fn();
 
 // Mock the producer module
-jest.mock('../../src/kafka', () => {
+jest.mock('../../src/services/kafka', () => {
   return {
     kafka: {
       producer: () => ({
