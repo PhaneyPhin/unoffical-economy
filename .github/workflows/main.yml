@@ -40,3 +40,6 @@ jobs:
       - name: Test
         id: npm-ci-test
         run: npm run test
+
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag caminv-sv-validator:$(date +%s)
